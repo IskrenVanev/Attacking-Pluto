@@ -9,7 +9,7 @@ class Enemy(pygame.sprite.Sprite):
     
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("Enemies\BigBat2.png")
+        self.image = pygame.image.load("img\Enemies\BigBat2.png")
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.5), int(self.image.get_height() * 0.5)))
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)

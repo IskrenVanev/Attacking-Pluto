@@ -5,13 +5,22 @@ import random, time
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
-#init and logo 
+from os import path
+from game_functions import *
+
+
+#settings
 pygame.init()
 icon = pygame.image.load("logo\logo32x32.png")
 pygame.display.set_icon(icon)
 FPS = 140
 clock = pygame.time.Clock()
-FramePerSec = pygame.time.Clock()
+game_folder = path.dirname(__file__)
+img_folder = path.join(game_folder, "img")
+background = pygame.image.load("img\Free-Horizontal-Game-Backgrounds\PNG\game_background_1\game_background_1.png").convert()
+background_rect = background.get_rect
+#FramePerSec = pygame.time.Clock()
+
 
 # Predefined some colors
 BLUE  = (0, 0, 255)
@@ -30,12 +39,12 @@ font = pygame.font.SysFont("Verdana", 60)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over!", True, BLACK)
 
-SPEED_Y = 5
-SCORE = 0
+#SPEED_Y = 5
+#SCORE = 0
 
 
 
-background = pygame.image.load("Free-Horizontal-Game-Backgrounds\PNG\game_background_1\game_background_1.png")
+#background = pygame.image.load("img\Free-Horizontal-Game-Backgrounds\PNG\game_background_1\game_background_1.png")
 
 
 
@@ -51,17 +60,16 @@ pygame.display.set_caption("Attacking Uranus")
 all_sprites = pygame.sprite.Group()
 all_enemies = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
-player = Player()
+player = Player(all_bullets, all_sprites)
 all_sprites.add(player)
 
 for i in range(9):
-    e = Enemy()
-    all_enemies.add(e)
-    all_sprites.add(e)
+    spawn_new_enemy(all_enemies, all_sprites)
+     
 
 
 
-
+    
 running = True
 while running:
     #keep the game running at 140 fps
@@ -70,19 +78,22 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running=False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.shoot_bullet()
-    #Update:
+        
+    #Update: 
     all_sprites.update()
-
+ 
     #check if enemy hits the ship
     enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
     if enemy_collision:
         running = False
 
+    #check to see if a bullet hits enemy
+    bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
+    for collision in bullet_collision:
+        spawn_new_enemy(all_enemies, all_sprites)
+        
     #Draw to the screen
-    screen.fill(BLACK)
+    screen.blit(background, (0,0))
     all_sprites.draw(screen)
 
     #Update after drawing evertything to the screen:
@@ -115,7 +126,7 @@ pygame.quit()
     # #To be run if collision occurs between Player and Enemy
     # if pygame.sprite.spritecollideany(P1, enemies):
     #     pygame.mixer.Sound('sounds\ExplosionGGWP.wav').play()
-    #     time.sleep(1) 
+    #     time.sleep(1) FramePerSec
     #     screen.fill(RED)
     #     screen.blit(game_over, (SCREEN_WIDTH/2 - game_over.get_width()/2, SCREEN_HEIGHT/2 - game_over.get_height()/2))
     #     pygame.display.update()
