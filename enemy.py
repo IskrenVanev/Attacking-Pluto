@@ -2,6 +2,7 @@
 import pygame
 import sys
 import random
+
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 #SPEED_Y=5

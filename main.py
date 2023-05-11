@@ -69,7 +69,7 @@ for i in range(9):
 
 
 
-    
+
 running = True
 while running:
     #keep the game running at 140 fps
@@ -82,7 +82,7 @@ while running:
     #Update: 
     all_sprites.update()
  
-    #check if enemy hits the ship
+    #check if enemy hits the ship 
     enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
     if enemy_collision:
         running = False

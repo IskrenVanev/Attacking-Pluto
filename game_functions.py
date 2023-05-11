@@ -3,7 +3,9 @@ import sys
 from enemy import Enemy
 import random, time
 from os import path
-pygame.init()
+
+#pygame.init()
+BLACK = (0, 0, 0)
 game_folder = path.dirname(__file__)
 img_folder = path.join(game_folder, "img")
 
@@ -15,6 +17,8 @@ def spawn_new_enemy(all_enemies, all_sprites):
     e = Enemy()
     all_enemies.add(e)
     all_sprites.add(e)
+
+
 
 
 #images
