@@ -7,10 +7,18 @@ SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 #SPEED_Y=5
 class Enemy(pygame.sprite.Sprite):
+  
     
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("img\Enemies\BigBat2.png")
+        enemy_images = [
+            "img/Enemies/BigBat2.png",
+            "img/Enemies/fish01Nobg.png",
+            "img/Enemies/flappybird.png"
+        ]
+        random_image_path = random.choice(enemy_images)
+        self.image = pygame.image.load(random_image_path)
+        #self.image = pygame.image.load("img\Enemies\BigBat2.png")
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.5), int(self.image.get_height() * 0.5)))
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)

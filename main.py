@@ -7,7 +7,7 @@ from enemy import Enemy
 from bullet import Bullet
 from os import path
 from game_functions import *
-
+import buttons
 
 #settings
 pygame.init()
@@ -19,6 +19,7 @@ game_folder = path.dirname(__file__)
 img_folder = path.join(game_folder, "img")
 background = pygame.image.load("img\Free-Horizontal-Game-Backgrounds\PNG\game_background_1\game_background_1.png").convert()
 background_rect = background.get_rect
+endBackground = pygame.image.load("img\BackgroundEnd.jpg")
 #FramePerSec = pygame.time.Clock()
 
 
@@ -35,9 +36,9 @@ SCREEN_HEIGHT = 1080
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 #fonts
-font = pygame.font.SysFont("Verdana", 60)
+font = pygame.font.SysFont("Verdana", 100)
 font_small = pygame.font.SysFont("Verdana", 20)
-game_over = font.render("Game Over!", True, BLACK)
+game_over = font.render("Game Over!", True, WHITE)
 
 #SPEED_Y = 5
 #SCORE = 0
@@ -51,7 +52,7 @@ game_over = font.render("Game Over!", True, BLACK)
 pygame.display.set_caption("Attacking Uranus")
 
 
-
+   
 
 
 #All sprites
@@ -63,14 +64,19 @@ all_bullets = pygame.sprite.Group()
 player = Player(all_bullets, all_sprites)
 all_sprites.add(player)
 
-for i in range(9):
+for i in range(9):  
     spawn_new_enemy(all_enemies, all_sprites)
      
 
+ 
 
-
-
+retry_button = buttons.Button(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 200, 100, 50)
 running = True
+game_over_flag = False
+collision_sound_played = False
+explosion_sound_channel = pygame.mixer.Channel(1)
+
+
 while running:
     #keep the game running at 140 fps
     clock.tick(FPS)
@@ -78,14 +84,37 @@ while running:
     for event in pygame.event.get():
         if event.type == QUIT:
             running=False
-        
-    #Update: 
-    all_sprites.update()
+        if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            mouse_pos = pygame.mouse.get_pos()
+            if retry_button.is_clicked(mouse_pos):
+                # Reset game state here
+                all_sprites.empty()
+                all_enemies.empty()
+                all_bullets.empty()
+                player = Player(all_bullets, all_sprites)
+                all_sprites.add(player)
+                for i in range(9):
+                    spawn_new_enemy(all_enemies, all_sprites)
+                game_over_flag = False
+                collision_sound_played = False
+    if not game_over_flag:  
+        #Update: 
+        all_sprites.update()
  
     #check if enemy hits the ship 
-    enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
-    if enemy_collision:
-        running = False
+        enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
+        if enemy_collision:
+            explosion_sound_channel.play(pygame.mixer.Sound('sounds\ExplosionGGWP.wav'))
+            collision_sound_played = True
+            time.sleep(1)
+            screen.blit(endBackground, (0,0))
+            screen.blit(game_over, (SCREEN_WIDTH/2 - game_over.get_width()/2, SCREEN_HEIGHT/2 - game_over.get_height()/2))
+            retry_button.draw(screen)
+            pygame.display.update()
+            time.sleep(2)
+            game_over_flag = True
+            #continue
+            #running = False
 
     #check to see if a bullet hits enemy
     bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)

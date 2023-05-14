@@ -15,7 +15,10 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("img\Player\spaceship_black.png")
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.2), int(self.image.get_height() * 0.2)))
+        cropped_height = int(self.image.get_height() * 0.8)
+        self.image = self.image.subsurface(pygame.Rect(0, 0, self.image.get_width(), cropped_height))
         self.rect = self.image.get_rect()
+        #self.rect.top = self.image.get_rect().top -100
         self.rect.centerx = SCREEN_WIDTH/2
         self.rect.bottom = SCREEN_HEIGHT-10
         self.speed_x=0
