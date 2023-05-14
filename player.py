@@ -1,15 +1,13 @@
-
 import pygame
 import sys
 import random
 import random, time
 import bullet
-
-
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
-#all_sprites = pygame.sprite.Group()
-#all_bullets = pygame.sprite.Group()
+
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self,all_bullets, all_sprites):
         super().__init__()
@@ -18,7 +16,6 @@ class Player(pygame.sprite.Sprite):
         cropped_height = int(self.image.get_height() * 0.8)
         self.image = self.image.subsurface(pygame.Rect(0, 0, self.image.get_width(), cropped_height))
         self.rect = self.image.get_rect()
-        #self.rect.top = self.image.get_rect().top -100
         self.rect.centerx = SCREEN_WIDTH/2
         self.rect.bottom = SCREEN_HEIGHT-10
         self.speed_x=0

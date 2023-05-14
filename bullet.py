@@ -12,11 +12,6 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed_y = -10
-
-        #self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
-        #self.rect.y = random.randrange(-150,-100)
-        #self.speed_y = random.randrange(2,8)
-        #self.speed_x = random.randrange(-3,3)
         
     def update(self):
         self.rect.y +=self.speed_y

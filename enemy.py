@@ -2,10 +2,9 @@
 import pygame
 import sys
 import random
-
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
-#SPEED_Y=5
+
 class Enemy(pygame.sprite.Sprite):
   
     
@@ -18,17 +17,13 @@ class Enemy(pygame.sprite.Sprite):
         ]
         random_image_path = random.choice(enemy_images)
         self.image = pygame.image.load(random_image_path)
-        #self.image = pygame.image.load("img\Enemies\BigBat2.png")
         self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.5), int(self.image.get_height() * 0.5)))
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150,-100)
         self.speed_y = random.randrange(2,8)
         self.speed_x = random.randrange(-3,3)
-        #self.rect.center=(random.randint(40,SCREEN_WIDTH-40),0)
-       # self.score = 0
-       # self.speed_y = random.randrange(2,8)
-        #self.speed_x = random.randrange(-5,5)
+
 
     def spawn_new_enemy(self):
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
