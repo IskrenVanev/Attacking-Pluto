@@ -9,10 +9,10 @@ pygame.display.set_icon(icon)
 #backgrounds and screen settings
 background = pygame.image.load("img\Backgrounds\game_background_1.png").convert()
 background_rect = background.get_rect
-endBackground = pygame.image.load("img\Backgrounds\BackgroundEnd.jpg").convert()
+endAndBeginBackground = pygame.image.load("img\Backgrounds\BackgroundEnd.jpg").convert()
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
-screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 
 # Predefined some colors
