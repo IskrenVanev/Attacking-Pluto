@@ -13,45 +13,25 @@ game_over = font.render("Game Over!", True, WHITE)
 endBackground = pygame.image.load("img\Backgrounds\BackgroundEnd.jpg").convert()
 
 
-    
-
-
 running = True
 game_over_flag = False
 collision_sound_played = False
 explosion_sound_channel = pygame.mixer.Channel(1)
 
-def get_font(size): # Returns Press-Start-2P in the desired size
-    return pygame.font.Font("assets/font.ttf", size)
 
 def play():
     game_over_flag = False
     running = True
     player = Player(all_bullets, all_sprites)
     all_sprites.add(player)
+    
     collision_sound_played = False  # Initialize collision_sound_played
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
-            if event.type == MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if quit_button.is_clicked(mouse_pos):
-                    running = False
-            if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                mouse_pos = pygame.mouse.get_pos()
-                if retry_button.is_clicked(mouse_pos):
-                    all_sprites.empty()
-                    all_enemies.empty()
-                    all_bullets.empty()
-                    player = Player(all_bullets, all_sprites)
-                    all_sprites.add(player)
-                    for i in range(9):
-                        spawn_new_enemy(all_enemies, all_sprites)
-                    game_over_flag = False
-                    collision_sound_played = False
-
+         
         if not game_over_flag:
             all_sprites.update()
 
@@ -59,15 +39,8 @@ def play():
         if enemy_collision:
             if not collision_sound_played:
                 explosion_sound_channel.play(pygame.mixer.Sound('sounds\ExplosionGGWP.wav'))
-                collision_sound_played = True
-            time.sleep(1)
-            screen.blit(endBackground, (0, 0))
-            screen.blit(game_over, (SCREEN_WIDTH / 2 - game_over.get_width() / 2, SCREEN_HEIGHT / 2 - game_over.get_height() / 2))
-            retry_button.draw(screen)
-            quit_button.draw(screen)
-            pygame.display.update()
-            continue
-            running = False
+                collision_sound_played = True           
+            break
 
         bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
         for collision in bullet_collision:
@@ -76,8 +49,10 @@ def play():
         screen.blit(background, (0, 0))
         all_sprites.draw(screen)
         pygame.display.update()
-
-    pygame.quit()
+    game_over_flag = False
+    collision_sound_played = False
+    death_menu()
+   
 
     
 def options():
@@ -106,6 +81,32 @@ def options():
 
         pygame.display.update()
 
+
+def death_menu():
+    while True:
+        SCREEN.blit(endAndBeginBackground, (0, 0))
+
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+        DEATH_TEXT = get_font(100).render("YOU DIED!", True, "#b68f40")
+        DEATH_RECT = DEATH_TEXT.get_rect(center=(SCREEN_WIDTH // 2 +20, 150))
+        RETRY_BUTTON = buttons.Button(image=pygame.image.load("assets/Options Rect.png"), pos=(960, 760), 
+                                text_input="RETRY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        QUIT_BUTTON = buttons.Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(960, 540), 
+                            text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        SCREEN.blit(DEATH_TEXT, DEATH_RECT)
+        for button in [RETRY_BUTTON, QUIT_BUTTON]:
+                button.changeColor(MENU_MOUSE_POS)
+                button.update(SCREEN)
+        for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if RETRY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        reset_game()
+                        play()
+                    if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        pygame.quit()
+                        sys.exit()
+        pygame.display.update()
+
 def main_menu():
     while True:
         SCREEN.blit(endAndBeginBackground, (0, 0))
@@ -121,6 +122,7 @@ def main_menu():
                             text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         QUIT_BUTTON = buttons.Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(960, 760), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
 
@@ -141,6 +143,7 @@ def main_menu():
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()
+               
 
         pygame.display.update()
 

@@ -1,5 +1,7 @@
 from imports import *
-
+#font
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return pygame.font.Font("assets/font.ttf", size)
 
 #icon
 icon = pygame.image.load("logo\logo32x32.png")
@@ -39,7 +41,13 @@ for i in range(9):
 
 
     
+#functions
+def reset_game():
+    all_sprites.empty()
+    all_enemies.empty()
+    all_bullets.empty()
+    player = Player(all_bullets, all_sprites)
+    all_sprites.add(player)
+    for i in range(9):
+        spawn_new_enemy(all_enemies, all_sprites)
 
-#buttons
-retry_button = buttons.RetryButton(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 200)
-quit_button = buttons.QuitButton(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 200, 200, 100)
