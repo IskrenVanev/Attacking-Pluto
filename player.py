@@ -47,6 +47,7 @@ class Player(pygame.sprite.Sprite):
             self.speed_x = self.speed
         if keystate[pygame.K_LEFT]:
             self.speed_x = -self.speed    #8 pixels to the left
+            
         if keystate[pygame.K_SPACE]:
             self.shoot_bullet()
         self.rect.x += self.speed_x

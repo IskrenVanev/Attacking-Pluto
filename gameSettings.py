@@ -51,3 +51,7 @@ def reset_game():
     for i in range(9):
         spawn_new_enemy(all_enemies, all_sprites)
 
+def change_volume(value):
+    pygame.mixer.music.set_volume(value)
+
+
