@@ -68,12 +68,11 @@ def options():
         OPTIONS_TEXT = get_font(100).render("OPTIONS", True, "#b68f40")
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(SCREEN_WIDTH // 2, 150))
         SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
-
+        
+        
         OPTIONS_BACK = buttons.Button(image=None, pos=(SCREEN_WIDTH // 2 , 1000), 
                             text_input="BACK", font=get_font(75), base_color="White", hovering_color="Green")
         
-
-
         VOLUME_TEXT = get_font(40).render("CHANGE MUSIC VOLUME", True, WHITE)
         VOLUME_RECT = VOLUME_TEXT.get_rect(center=(SCREEN_WIDTH // 2, 300))
         SCREEN.blit(VOLUME_TEXT, VOLUME_RECT)
@@ -81,10 +80,7 @@ def options():
         VOLUME_EFFECTS_TEXT = get_font(40).render("CHANGE EFFECTS VOLUME", True, WHITE)
         VOLUME_EFFECTS_RECT = VOLUME_EFFECTS_TEXT.get_rect(center=(SCREEN_WIDTH // 2, 600))
         SCREEN.blit(VOLUME_EFFECTS_TEXT, VOLUME_EFFECTS_RECT)
-
-        OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
-        OPTIONS_BACK.update(SCREEN)
-
+        
         VOLUME_BAR_WIDTH = 700
         VOLUME_BAR_HEIGHT = 100
         VOLUME_BAR_X = SCREEN_WIDTH // 2 - VOLUME_BAR_WIDTH // 2
@@ -109,7 +105,16 @@ def options():
         pygame.draw.rect(SCREEN, (255, 255, 255), (VOLUME_BAR_SFX_X, VOLUME_BAR_SFX_Y, VOLUME_BAR_SFX_WIDTH, VOLUME_BAR_SFX_HEIGHT), 0)
         pygame.draw.rect(SCREEN, (0, 0, 0), (VOLUME_BAR_SFX_X, VOLUME_BAR_SFX_Y, VOLUME_BAR_SFX_WIDTH, VOLUME_BAR_SFX_HEIGHT), VOLUME_BAR_SFX_BORDER_WIDTH)
         pygame.draw.rect(SCREEN, (255, 0, 0), (VOLUME_BAR_SFX_X, VOLUME_BAR_SFX_Y, sfx_volume_position, VOLUME_BAR_SFX_HEIGHT), 0)
-
+        #screen.blit(mouse_cursor_default, OPTIONS_MOUSE_POS)
+        button_hovered = False
+        for button in [OPTIONS_BACK]:
+            OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
+            OPTIONS_BACK.update(SCREEN)
+            if button.rect.collidepoint(OPTIONS_MOUSE_POS):
+                    screen.blit(mouse_crusor_hover, OPTIONS_MOUSE_POS)
+                    button_hovered = True
+        if not button_hovered:
+            SCREEN.blit(mouse_cursor_default, OPTIONS_MOUSE_POS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -146,9 +151,17 @@ def death_menu():
         QUIT_BUTTON = buttons.Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(960, 800), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         SCREEN.blit(DEATH_TEXT, DEATH_RECT)
+        button_hovered = False
         for button in [RETRY_BUTTON, QUIT_BUTTON,MAINMENU_BUTTON]:
                 button.changeColor(MENU_MOUSE_POS)
                 button.update(SCREEN)
+                if button.rect.collidepoint(MENU_MOUSE_POS):
+                    screen.blit(mouse_crusor_hover, MENU_MOUSE_POS)
+                    button_hovered = True
+                
+                    
+        if not button_hovered:
+            SCREEN.blit(mouse_cursor_default, MENU_MOUSE_POS)
         for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if RETRY_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -168,6 +181,7 @@ def main_menu():
         SCREEN.blit(endAndBeginBackground, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
+        
 
         MENU_TEXT = get_font(100).render("MAIN MENU", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(960, 150))
@@ -181,11 +195,15 @@ def main_menu():
         
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
-
+        button_hovered = False
         for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(SCREEN)
-        
+            if button.rect.collidepoint(MENU_MOUSE_POS):
+                    screen.blit(mouse_crusor_hover, MENU_MOUSE_POS)
+                    button_hovered = True
+        if not button_hovered:
+            SCREEN.blit(mouse_cursor_default, MENU_MOUSE_POS)
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:

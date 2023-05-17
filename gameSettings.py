@@ -2,7 +2,10 @@ from imports import *
 #font
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/font.ttf", size)
-
+#cursor
+mouse_cursor_default = pygame.image.load("img\Cursors\cursor_default.png")
+mouse_crusor_hover = pygame.image.load("img\Cursors\cursor_select.png")
+pygame.mouse.set_visible(False)
 #icon
 icon = pygame.image.load("logo\logo32x32.png")
 pygame.display.set_icon(icon)
