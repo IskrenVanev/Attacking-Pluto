@@ -1,31 +1,44 @@
-
 import pygame
 import sys
 import random
+
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 
 class Enemy(pygame.sprite.Sprite):
   
-    
     def __init__(self):
         super().__init__()
-        enemy_images = [
-            "img/Enemies/BigBat2.png",
-            "img/Enemies/fish01Nobg.png",
-            "img/Enemies/flappybird.png"
+        self.enemy_bat_images = [
+            "img/Enemies/EnemyLvl1 animated/Bat1.png",
+            "img/Enemies/EnemyLvl1 animated/Bat2.png",
+            "img/Enemies/EnemyLvl1 animated/Bat3.png"
         ]
-        random_image_path = random.choice(enemy_images)
-        self.image = pygame.image.load(random_image_path)
-        self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.5), int(self.image.get_height() * 0.5)))
+        self.enemy_eye_images = [
+            "img/Enemies/EnemyLvl1 animated/eye1.png",
+            "img/Enemies/EnemyLvl1 animated/eye2.png",
+            "img/Enemies/EnemyLvl1 animated/eye3.png"
+        ]
+        self.enemy_dragon_images = [
+            "img/Enemies/EnemyLvl1 animated/dragon1.png",
+            "img/Enemies/EnemyLvl1 animated/dragon2.png",
+            "img/Enemies/EnemyLvl1 animated/dragon3.png"
+        ]
+        
+        self.enemy_images = random.choice([self.enemy_bat_images, self.enemy_eye_images, self.enemy_dragon_images])  # Choose a random set of enemy images
+        
+        self.image = pygame.image.load(self.enemy_images[0])
+        self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 3), int(self.image.get_height() * 3)))
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150,-100)
         self.speed_y = random.randrange(2,8)
         self.speed_x = random.randrange(-3,3)
-
+        self.image_index = 0  # Current image index for animation
+        self.change_image_timer = 0  # Timer to control image change
 
     def spawn_new_enemy(self):
+        self.enemy_images = random.choice([self.enemy_bat_images, self.enemy_eye_images, self.enemy_dragon_images])  # Choose a random set of enemy images
         self.rect.x = random.randrange(0, SCREEN_WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150,-100)
         self.speed_y = random.randrange(2,8)
@@ -36,15 +49,15 @@ class Enemy(pygame.sprite.Sprite):
             self.spawn_new_enemy()
 
     def update(self):
+        
         self.rect.y += self.speed_y
-        self.rect.x +=self.speed_x
+        self.rect.x += self.speed_x
         self.boundary()
 
-    def move(self):
-        global SCORE
-        
-        self.rect.move_ip(0,self.speed_y)
-        if (self.rect.bottom > 1200):
-            self.score += 1
-            self.rect.top = 0
-            self.rect.center = (random.randint(90, 900), 0)
+        # Animation
+        self.change_image_timer += 1
+        if self.change_image_timer >= 10:  # Change image every 10 frames (adjust as needed)
+            self.image_index = (self.image_index + 1) % len(self.enemy_images)  # Cycle through the images
+            self.image = pygame.image.load(self.enemy_images[self.image_index])
+            self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 3), int(self.image.get_height() * 3)))
+            self.change_image_timer = 0

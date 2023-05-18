@@ -15,6 +15,11 @@ font = pygame.font.SysFont("Verdana", 100)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over!", True, WHITE)
 endBackground = pygame.image.load("img\Backgrounds\BackgroundEnd.jpg").convert()
+bg_image = pygame.image.load("img\Backgrounds\Dynamic Space Background FREE\img1.png").convert()
+background_height = bg_image.get_height()
+global background_y
+background_y = 0  # Initial y-position of the background
+
 
 
 running = True
@@ -23,6 +28,9 @@ collision_sound_played = False
 
 
 def play():
+    
+    
+    global background_y
     game_over_flag = False
     running = True
     player = Player(all_bullets, all_sprites)
@@ -34,7 +42,7 @@ def play():
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
-         
+        screen.fill((0, 0, 0))
         if not game_over_flag:
             all_sprites.update()
 
@@ -49,7 +57,12 @@ def play():
         for collision in bullet_collision:
             spawn_new_enemy(all_enemies, all_sprites)
 
-        screen.blit(background, (0, 0))
+            #scrolling background
+        background_y = (background_y + 3) % background_height
+        # Draw the background on the screen
+        screen.blit(bg_image, (0, background_y))
+        screen.blit(bg_image, (0, background_y - background_height))
+  
         all_sprites.draw(screen)
         pygame.display.update()
     game_over_flag = False

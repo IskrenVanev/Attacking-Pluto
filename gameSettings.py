@@ -20,6 +20,8 @@ SCREEN_HEIGHT = 1080
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 
 
+
+
 # Predefined some colors
 BLUE  = (0, 0, 255)
 RED   = (255, 0, 0)
