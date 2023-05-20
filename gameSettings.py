@@ -1,4 +1,6 @@
 from imports import *
+FPS = 140
+clock = pygame.time.Clock()
 #font
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/font.ttf", size)
@@ -60,3 +62,34 @@ def change_volume(value):
     pygame.mixer.music.set_volume(value)
 
 
+
+#explosions
+
+explosion_images = []
+explosion_images.append(pygame.image.load("img\Explosions\Explosion1.png"))
+explosion_images.append(pygame.image.load("img\Explosions\Explosion2.png"))
+explosion_images.append(pygame.image.load("img\Explosions\Explosion3.png"))
+explosion_images.append(pygame.image.load("img\Explosions\Explosion4.png"))
+
+
+def show_explosion_animation(x, y):
+    explosion_duration = 200  # Duration in milliseconds
+    frame_delay = explosion_duration // len(explosion_images)
+    current_frame = 0
+    animation_timer = 0
+    
+    while animation_timer < explosion_duration:
+        clock.tick(FPS)
+        animation_timer += frame_delay
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        screen.blit(explosion_images[current_frame], (x, y))
+        pygame.display.update()
+        
+        current_frame += 1
+        if current_frame >= len(explosion_images):
+            current_frame = 0

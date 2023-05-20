@@ -1,10 +1,11 @@
 from imports import *
 from gameSettings import *
 from pygame import mixer
-#settings
+
+# Settings
 pygame.init()
 pygame.mixer.init()
-mixer.music.load('sounds\Background_song.mp3')
+mixer.music.load('sounds/Background_song.mp3')
 mixer.music.set_volume(0.2)
 mixer.music.play(-1)
 FPS = 140
@@ -12,31 +13,27 @@ clock = pygame.time.Clock()
 explosion_sound_channel = pygame.mixer.Channel(1)
 explosion_sound_channel.set_volume(0.2)
 font = pygame.font.SysFont("Verdana", 100)
+font_average = pygame.font.SysFont("Verdana", 50)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over!", True, WHITE)
-endBackground = pygame.image.load("img\Backgrounds\BackgroundEnd.jpg").convert()
-bg_image = pygame.image.load("img\Backgrounds\Dynamic Space Background FREE\img1.png").convert()
+endBackground = pygame.image.load("img/Backgrounds/BackgroundEnd.jpg").convert()
+bg_image = pygame.image.load("img/Backgrounds/Dynamic Space Background FREE/img1.png").convert()
 background_height = bg_image.get_height()
-global background_y
 background_y = 0  # Initial y-position of the background
-
-
-
 running = True
 game_over_flag = False
 collision_sound_played = False
 
-
 def play():
-    
-    
     global background_y
+    global collision_sound_played
+    global explosion_sound_played
     game_over_flag = False
     running = True
     player = Player(all_bullets, all_sprites)
     all_sprites.add(player)
-    
     collision_sound_played = False  # Initialize collision_sound_played
+
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -46,30 +43,45 @@ def play():
         if not game_over_flag:
             all_sprites.update()
 
+        # Enemy collision
         enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         if enemy_collision:
+            Enemy.SCORE = 0
             if not collision_sound_played:
-                explosion_sound_channel.play(pygame.mixer.Sound('sounds\ExplosionGGWP.wav'))
-                collision_sound_played = True           
+                explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
+                collision_sound_played = True
             break
 
+        # Getting the collision coordinates
         bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
-        for collision in bullet_collision:
-            spawn_new_enemy(all_enemies, all_sprites)
+        collision_coordinates = []
+        for enemy_sprite, bullet_sprites in bullet_collision.items():
+            for bullet_sprite in bullet_sprites:
+                bullet_coordinates = (bullet_sprite.rect.x, bullet_sprite.rect.y)
+                collision_coordinates.append(bullet_coordinates)
 
-            #scrolling background
+        # Scrolling background
         background_y = (background_y + 3) % background_height
         # Draw the background on the screen
         screen.blit(bg_image, (0, background_y))
         screen.blit(bg_image, (0, background_y - background_height))
-  
+        scores = font_average.render(str(Enemy.SCORE), True, WHITE)
+        screen.blit(scores, (10, 10))
         all_sprites.draw(screen)
+
+        for collision in bullet_collision:
+            enemy = collision
+            enemy_x = enemy.rect.x
+            enemy_y = enemy.rect.y
+            show_explosion_animation(enemy_x, enemy_y)
+            spawn_new_enemy(all_enemies, all_sprites)
+            explosion_sound_channel.play(pygame.mixer.Sound('img/Explosions/ExplosionSound1.wav'))
+
         pygame.display.update()
+
     game_over_flag = False
     collision_sound_played = False
     death_menu()
-   
-
     
 def options():
     while True:

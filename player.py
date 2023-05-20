@@ -54,4 +54,5 @@ class Player(pygame.sprite.Sprite):
           
     def update(self):
         self.movement()
-        self.boundary()         
+        self.boundary()
+             
