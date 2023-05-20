@@ -24,6 +24,11 @@ running = True
 game_over_flag = False
 collision_sound_played = False
 
+
+
+
+
+
 def play():
     global background_y
     global collision_sound_played
@@ -34,25 +39,38 @@ def play():
     all_sprites.add(player)
     collision_sound_played = False  # Initialize collision_sound_played
 
+
     while running:
         clock.tick(FPS)
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
         screen.fill((0, 0, 0))
         if not game_over_flag:
             all_sprites.update()
-
+        
         # Enemy collision
         enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         if enemy_collision:
-            Enemy.SCORE = 0
-            if not collision_sound_played:
+            player.lives -= 1
+            if player.lives >=1:        #empty sprites and spawn them again
+                all_sprites.empty()
+                all_enemies.empty()
+                all_bullets.empty()
+                all_sprites.add(player)
+                for i in range(9):
+                    spawn_new_enemy(all_enemies, all_sprites)
+            
+            if not collision_sound_played:      #play explosion
                 explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
                 collision_sound_played = True
-            break
+            collision_sound_played = False
+            if player.lives <= 0: #ggwp
+                Enemy.SCORE = 0
+                break
 
-        # Getting the collision coordinates
+        # Getting the collision coordinates for bullets
         bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
         collision_coordinates = []
         for enemy_sprite, bullet_sprites in bullet_collision.items():
@@ -60,16 +78,20 @@ def play():
                 bullet_coordinates = (bullet_sprite.rect.x, bullet_sprite.rect.y)
                 collision_coordinates.append(bullet_coordinates)
 
+
         # Scrolling background
         background_y = (background_y + 3) % background_height
         # Draw the background on the screen
         screen.blit(bg_image, (0, background_y))
         screen.blit(bg_image, (0, background_y - background_height))
         scores = font_average.render(str(Enemy.SCORE), True, WHITE)
+        player.draw_hearts(screen)
+        
         screen.blit(scores, (10, 10))
+
         all_sprites.draw(screen)
 
-        for collision in bullet_collision:
+        for collision in bullet_collision: 
             enemy = collision
             enemy_x = enemy.rect.x
             enemy_y = enemy.rect.y
@@ -247,7 +269,6 @@ def main_menu():
         pygame.display.update()
 
 main_menu()
-
 
 
 
