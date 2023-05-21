@@ -24,8 +24,43 @@ running = True
 game_over_flag = False
 collision_sound_played = False
 
+explosion_animation = {}
+explosion_animation['player'] =[]
+explosion_images = [
+            pygame.image.load("img/Explosions/Explosion3/Expl1.png"),
+            pygame.image.load("img/Explosions/Explosion3/Expl2.png"),
+            pygame.image.load("img/Explosions/Explosion3/Expl3.png"),
+            pygame.image.load("img/Explosions/Explosion3/Expl4.png"),
+            pygame.image.load("img/Explosions/Explosion3/Expl5.png"),
+            pygame.image.load("img/Explosions/Explosion3/Expl6.png"),
+            # Add more explosion frames as needed
+        ]
+for image in explosion_images:
+    explosion_animation['player'].append(image)
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, center, size):
+            pygame.sprite.Sprite.__init__(self)
+            self.size = size
+            self.images = explosion_animation[self.size]
+            self.image = self.images[0]
+            self.rect = self.image.get_rect()
+            self.rect.center = center
+            self.frame = 0
+            self.last_update = pygame.time.get_ticks()
+            self.frame_rate = 75 
 
-
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now 
+            self.frame +=1
+            if self.frame == len(explosion_animation[self.size]):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = self.images[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
 
 
 
@@ -53,6 +88,8 @@ def play():
         # Enemy collision
         enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         if enemy_collision:
+            death_explosion = Explosion(player.rect.center, 'player')
+            all_sprites.add(death_explosion)
             player.lives -= 1
             if player.lives >=1:        #empty sprites and spawn them again
                 all_sprites.empty()

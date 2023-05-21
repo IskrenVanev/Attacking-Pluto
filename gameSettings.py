@@ -1,4 +1,6 @@
 from imports import *
+from explosion import Explosion
+from enemy import Enemy
 FPS = 140
 clock = pygame.time.Clock()
 #font
@@ -40,8 +42,11 @@ pygame.display.set_caption("Attacking Uranus")
 all_sprites = pygame.sprite.Group()
 all_enemies = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
+#all_explosions = pygame.sprite.Group()
 player = Player(all_bullets, all_sprites)
 all_sprites.add(player)
+#explosion = Explosion(Enemy.rect.centerx, enemy.rect.centery)
+#all_explosions.add(explosion)
 
 for i in range(9):  
     spawn_new_enemy(all_enemies, all_sprites)
