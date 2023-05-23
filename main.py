@@ -1,6 +1,7 @@
 from imports import *
 from gameSettings import *
 from pygame import mixer
+from pygame.sprite import Sprite
 
 # Settings
 pygame.init()
@@ -23,47 +24,19 @@ background_y = 0  # Initial y-position of the background
 running = True
 game_over_flag = False
 collision_sound_played = False
+explosion_player_image = pygame.image.load("img\Explosions\Explosion3\Expl1.png")
+explosion_frames = [
+    pygame.image.load("img/Explosions/Explosion3/Expl1.png"),
+    pygame.image.load("img/Explosions/Explosion3/Expl2.png"),
+    pygame.image.load("img/Explosions/Explosion3/Expl3.png"),
+    pygame.image.load("img/Explosions/Explosion3/Expl4.png")
+    
 
-explosion_animation = {}
-explosion_animation['player'] =[]
-explosion_images = [
-            pygame.image.load("img/Explosions/Explosion3/Expl1.png"),
-            pygame.image.load("img/Explosions/Explosion3/Expl2.png"),
-            pygame.image.load("img/Explosions/Explosion3/Expl3.png"),
-            pygame.image.load("img/Explosions/Explosion3/Expl4.png"),
-            pygame.image.load("img/Explosions/Explosion3/Expl5.png"),
-            pygame.image.load("img/Explosions/Explosion3/Expl6.png"),
-            # Add more explosion frames as needed
-        ]
-for image in explosion_images:
-    explosion_animation['player'].append(image)
-class Explosion(pygame.sprite.Sprite):
-    def __init__(self, center, size):
-            pygame.sprite.Sprite.__init__(self)
-            self.size = size
-            self.images = explosion_animation[self.size]
-            self.image = self.images[0]
-            self.rect = self.image.get_rect()
-            self.rect.center = center
-            self.frame = 0
-            self.last_update = pygame.time.get_ticks()
-            self.frame_rate = 75 
-
-    def update(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_update > self.frame_rate:
-            self.last_update = now 
-            self.frame +=1
-            if self.frame == len(explosion_animation[self.size]):
-                self.kill()
-            else:
-                center = self.rect.center
-                self.image = self.images[self.frame]
-                self.rect = self.image.get_rect()
-                self.rect.center = center
+]
 
 
 
+ 
 def play():
     global background_y
     global collision_sound_played
@@ -73,23 +46,30 @@ def play():
     player = Player(all_bullets, all_sprites)
     all_sprites.add(player)
     collision_sound_played = False  # Initialize collision_sound_played
-
-
+    start_time = pygame.time.get_ticks()
+    #delay = 200  # Delay in milliseconds (1 second)
+    #explosion_active = False
+    freeze_screen = False
+    explosion_active = False  # Flag to track the explosion state
+    current_frame = 0  # Current frame index
+    frame_start_time = 0  # Start time for the current frame
+    frame_duration = 100  # Duration (in milliseconds) for each frame
+    explosion_duration = 500
     while running:
         clock.tick(FPS)
-
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
         screen.fill((0, 0, 0))
         if not game_over_flag:
             all_sprites.update()
+         
         
         # Enemy collision
         enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         if enemy_collision:
-            death_explosion = Explosion(player.rect.center, 'player')
-            all_sprites.add(death_explosion)
+           
             player.lives -= 1
             if player.lives >=1:        #empty sprites and spawn them again
                 all_sprites.empty()
@@ -125,9 +105,13 @@ def play():
         player.draw_hearts(screen)
         
         screen.blit(scores, (10, 10))
+        
 
         all_sprites.draw(screen)
-
+        
+        
+            
+        
         for collision in bullet_collision: 
             enemy = collision
             enemy_x = enemy.rect.x
@@ -135,9 +119,54 @@ def play():
             show_explosion_animation(enemy_x, enemy_y)
             spawn_new_enemy(all_enemies, all_sprites)
             explosion_sound_channel.play(pygame.mixer.Sound('img/Explosions/ExplosionSound1.wav'))
-
+        
+            
         pygame.display.update()
+        current_time = pygame.time.get_ticks()
 
+        if enemy_collision:  # Check if collision with enemy has occurred
+            player.image = explosion_frames[current_frame]
+            player.image = pygame.transform.scale(player.image, (300, 300))
+            player.rect.bottom = SCREEN_HEIGHT - 60
+            explosion_active = True  # Set the explosion flag to activate the animation
+            frame_start_time = pygame.time.get_ticks()  # Record the start time of the current frame
+            freeze_screen = True
+
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - frame_start_time
+
+        if explosion_active:
+            if elapsed_time >= frame_duration:  # Check if the current frame duration has passed
+                current_frame += 1  # Move to the next frame
+                if current_frame >= len(explosion_frames):  # Check if all frames have been displayed
+                    player.image = pygame.image.load("img/Player/spaceship_black.png")
+                    player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
+                    player.rect.bottom = SCREEN_HEIGHT - 10
+                    explosion_active = False
+                    #pygame.time.delay(500)
+                    
+                    if elapsed_time >= explosion_duration:  # Check if the entire explosion duration has passed
+                        explosion_active = False  # Deactivate the explosion animation
+                        current_frame = 0  # Reset the frame index
+                        pygame.time.delay(500)  # Delay after the explosion animation
+                        # ... (reset the game state as needed)
+                        
+                        # Reset the player image
+                        player.image = pygame.image.load("img/Player/spaceship_black.png")
+                        player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
+                        player.rect.centerx = SCREEN_WIDTH/2
+                        player.rect.bottom = SCREEN_HEIGHT - 10
+                        # ... (reset the game state as needed)
+                    else:
+                        current_frame = len(explosion_frames) - 1  # Show the last frame continuously
+                    frame_start_time = pygame.time.get_ticks()  # Record the start time of the next frame
+                else:
+                    player.image = explosion_frames[current_frame]  # Update the player image with the next frame
+                    player.image = pygame.transform.scale(player.image, (300, 300))
+                    frame_start_time = pygame.time.get_ticks()  # Record the start time of the next frame
+                    
+        
+                
     game_over_flag = False
     collision_sound_played = False
     death_menu()

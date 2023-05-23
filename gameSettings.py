@@ -1,5 +1,5 @@
 from imports import *
-from explosion import Explosion
+#from explosion import Explosion
 from enemy import Enemy
 FPS = 140
 clock = pygame.time.Clock()
