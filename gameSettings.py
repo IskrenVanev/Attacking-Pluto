@@ -34,7 +34,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 #name of the game
-pygame.display.set_caption("Attacking Uranus")
+pygame.display.set_caption("Attacking Pluto")
 
 
 
