@@ -19,6 +19,8 @@ font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over!", True, WHITE)
 endBackground = pygame.image.load("img/Backgrounds/BackgroundEnd.jpg").convert()
 bg_image = pygame.image.load("img/Backgrounds/Dynamic Space Background FREE/img1.png").convert()
+bg_image2 = pygame.image.load("img/Backgrounds/Dynamic Space Background FREE/img2.png").convert()
+bg_image3 = pygame.image.load("img/Backgrounds/Dynamic Space Background FREE/img3.png").convert()
 background_height = bg_image.get_height()
 background_y = 0  # Initial y-position of the background
 running = True
@@ -99,8 +101,15 @@ def play():
         # Scrolling background
         background_y = (background_y + 3) % background_height
         # Draw the background on the screen
-        screen.blit(bg_image, (0, background_y))
-        screen.blit(bg_image, (0, background_y - background_height))
+        if player.lives == 3:
+            screen.blit(bg_image, (0, background_y))
+            screen.blit(bg_image, (0, background_y - background_height))
+        elif player.lives == 2:
+            screen.blit(bg_image2, (0, background_y))
+            screen.blit(bg_image2, (0, background_y - background_height))
+        elif player.lives == 1:
+            screen.blit(bg_image3, (0, background_y))
+            screen.blit(bg_image3, (0, background_y - background_height))
         scores = font_average.render(str(Enemy.SCORE), True, WHITE)
         player.draw_hearts(screen)
         
@@ -139,10 +148,7 @@ def play():
             if elapsed_time >= frame_duration:  # Check if the current frame duration has passed
                 current_frame += 1  # Move to the next frame
                 if current_frame >= len(explosion_frames):  # Check if all frames have been displayed
-                    player.image = pygame.image.load("img/Player/spaceship_black.png")
-                    player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
-                    player.rect.bottom = SCREEN_HEIGHT - 10
-                    explosion_active = False
+                   
                     #pygame.time.delay(500)
                     
                     if elapsed_time >= explosion_duration:  # Check if the entire explosion duration has passed
@@ -159,6 +165,10 @@ def play():
                         # ... (reset the game state as needed)
                     else:
                         current_frame = len(explosion_frames) - 1  # Show the last frame continuously
+                    player.image = pygame.image.load("img/Player/spaceship_black.png")
+                    player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
+                    player.rect.bottom = SCREEN_HEIGHT - 10
+                    explosion_active = False
                     frame_start_time = pygame.time.get_ticks()  # Record the start time of the next frame
                 else:
                     player.image = explosion_frames[current_frame]  # Update the player image with the next frame
