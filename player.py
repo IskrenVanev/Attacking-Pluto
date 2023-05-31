@@ -24,7 +24,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = SCREEN_WIDTH/2
         self.rect.bottom = SCREEN_HEIGHT-10
+        
         self.speed_x=0
+        self.speed_y=0
         self.speed = 8
         self.all_bullets = all_bullets
         self.all_sprites = all_sprites
@@ -46,18 +48,28 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = SCREEN_WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.rect.bottom = SCREEN_HEIGHT
+        if self.rect.top < 0:
+            self.rect.top = 0
 
     def movement(self):
         self.speed_x = 0
+        self.speed_y = 0
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_RIGHT]:
             self.speed_x = self.speed
         if keystate[pygame.K_LEFT]:
             self.speed_x = -self.speed    #8 pixels to the left
-            
+        if keystate[pygame.K_UP]:
+            self.speed_y = -self.speed
+        if keystate[pygame.K_DOWN]:
+            self.speed_y = self.speed
         if keystate[pygame.K_SPACE]:
             self.shoot_bullet()
         self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+
 
     def draw_hearts(self, screen):
         heart_width = self.heart_images[0].get_width()
