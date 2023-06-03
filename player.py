@@ -12,19 +12,25 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self,all_bullets, all_sprites):
         super().__init__()
+        self.explosion_images = [
+            pygame.transform.scale(pygame.image.load("img/Explosions/Explosion3/Expl1.png"), (150, 150)),
+            pygame.transform.scale(pygame.image.load("img/Explosions/Explosion3/Expl2.png"), (150, 150)),
+            pygame.transform.scale(pygame.image.load("img/Explosions/Explosion3/Expl3.png"), (150, 150)),
+            pygame.transform.scale(pygame.image.load("img/Explosions/Explosion3/Expl4.png"), (150, 150))
+        ]
         self.heart_images =[
             pygame.image.load("img/Player/Hearts/Heart.png"),
             pygame.image.load("img/Player/Hearts/Noheart.png")
         ]
 
-        self.image = pygame.image.load("img\Player\spaceship_black.png")
-        self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 0.2), int(self.image.get_height() * 0.2)))
-        cropped_height = int(self.image.get_height() * 0.8)
-        self.image = self.image.subsurface(pygame.Rect(0, 0, self.image.get_width(), cropped_height))
-        self.rect = self.image.get_rect()
+        self.original_image = pygame.image.load("img\Player\spaceship_black.png")
+        self.original_image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * 0.2), int(self.original_image.get_height() * 0.2)))
+        cropped_height = int(self.original_image.get_height() * 0.8)
+        self.original_image = self.original_image.subsurface(pygame.Rect(0, 0, self.original_image.get_width(), cropped_height))
+        self.rect = self.original_image.get_rect()
         self.rect.centerx = SCREEN_WIDTH/2
         self.rect.bottom = SCREEN_HEIGHT-10
-        
+        self.image = self.original_image.copy()
         self.speed_x=0
         self.speed_y=0
         self.speed = 8
@@ -33,7 +39,12 @@ class Player(pygame.sprite.Sprite):
         self.last_bullet_shot = pygame.time.get_ticks()
         self.lives = 3
 
-       
+        self.is_exploding = False
+        self.explosion_index = 0
+        self.explosion_start_time = 0
+        self.explosion_duration = 500  # milliseconds
+
+    
     def shoot_bullet(self):
         #shoot bullet when space is pressed
         current_time = pygame.time.get_ticks()
@@ -90,7 +101,28 @@ class Player(pygame.sprite.Sprite):
             noheart_x = SCREEN_WIDTH - (heart_width * (i + 1))
             noheart_y = 0
             screen.blit(noheart_image, (noheart_x, noheart_y))
+    
+    def explode(self):
+        self.is_exploding = True
+        self.explosion_start_time = pygame.time.get_ticks()
+        self.explosion_index = 0
+        #self.image = self.explosion_images[self.explosion_index]
+        
     def update(self):
-        self.movement()
-        self.boundary()
+        if self.is_exploding:
+            current_time = pygame.time.get_ticks()
+            elapsed_time = current_time - self.explosion_start_time
+
+            if elapsed_time > self.explosion_duration:
+                self.is_exploding = False
+                self.image = self.original_image
+                # Reset the player position or do any other necessary logic
+            else:
+                explosion_image = self.explosion_images[self.explosion_index]
+                self.image = explosion_image
+                self.explosion_index = (self.explosion_index + 1) % len(self.explosion_images)
+
+        else:
+            self.movement()
+            self.boundary()
              

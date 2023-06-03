@@ -35,11 +35,22 @@ explosion_frames = [
     
 
 ]
+#best_score = 0
+try:
+    with open('best_score.txt', 'r') as file:
+        content = file.read()
+        if content:
+            best_score = int(content)
+        else:
+            best_score = 0  # or any other default value
+except FileNotFoundError:
+    best_score = 0  # Handle the case when the file doesn't exist
 
 
 
  
 def play():
+    global best_score
     global background_y
     global collision_sound_played
     global explosion_sound_played
@@ -49,14 +60,11 @@ def play():
     all_sprites.add(player)
     collision_sound_played = False  # Initialize collision_sound_played
     start_time = pygame.time.get_ticks()
-    #delay = 200  # Delay in milliseconds (1 second)
-    #explosion_active = False
-    freeze_screen = False
-    explosion_active = False  # Flag to track the explosion state
-    current_frame = 0  # Current frame index
-    frame_start_time = 0  # Start time for the current frame
-    frame_duration = 100  # Duration (in milliseconds) for each frame
-    explosion_duration = 500
+    enemyCollide = False
+    pausetime = 140
+    collision_enemies = []
+    hasCollided = False
+    collisionCounter = 0
     while running:
         clock.tick(FPS)
         
@@ -64,26 +72,46 @@ def play():
             if event.type == QUIT:
                 running = False
         screen.fill((0, 0, 0))
+
         if not game_over_flag:
+            
             all_sprites.update()
+            
+            
+            
          
         
         # Enemy collision
         enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         if enemy_collision:
-           
+            if hasCollided == False:
+                hasCollided = True
+            for enemy in all_enemies:
+                if hasCollided == True and collisionCounter % 7 != 0:
+                    Enemy.collide_with_player(enemy)
+                    collisionCounter+=1
+                if collisionCounter % 7 == 0:
+                    hasCollided=False
+            
+                
+            
+            player.explode()
             player.lives -= 1
+          
+
             if player.lives >=1:        #empty sprites and spawn them again
                 all_sprites.empty()
                 all_enemies.empty()
                 all_bullets.empty()
                 all_sprites.add(player)
-                for i in range(9):
+                player.rect.bottom = SCREEN_HEIGHT - 10
+                for i in range(7):
                     spawn_new_enemy(all_enemies, all_sprites)
             
             if not collision_sound_played:      #play explosion
                 explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
                 collision_sound_played = True
+                
             collision_sound_played = False
             if player.lives <= 0: #ggwp
                 Enemy.SCORE = 0
@@ -91,6 +119,17 @@ def play():
 
         # Getting the collision coordinates for bullets
         bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
+        if bullet_collision:
+            for enemy_sprite, bullet_sprites in bullet_collision.items():
+        # Check the enemy images and assign scores accordingly
+                enemy_images = enemy_sprite.enemy_images     
+                if any(image_path in enemy_images for image_path in Enemy.enemy_bat_images):
+                    Enemy.SCORE += 1  # Score for shooting enemy_bat_images
+                elif any(image_path in enemy_images for image_path in Enemy.enemy_eye_images):
+                    Enemy.SCORE += 2  # Score for shooting enemy_eye_images
+                elif any(image_path in enemy_images for image_path in Enemy.enemy_dragon_images):
+                    Enemy.SCORE += 3  # Score for shooting enemy_dragon_images
+                
         collision_coordinates = []
         for enemy_sprite, bullet_sprites in bullet_collision.items():
             for bullet_sprite in bullet_sprites:
@@ -111,11 +150,14 @@ def play():
             screen.blit(bg_image3, (0, background_y))
             screen.blit(bg_image3, (0, background_y - background_height))
         scores = font_average.render(str(Enemy.SCORE), True, WHITE)
+        
         player.draw_hearts(screen)
         
         screen.blit(scores, (10, 10))
         
-
+            
+        if not enemyCollide:
+            enemyCollide = False
         all_sprites.draw(screen)
         
         
@@ -131,56 +173,24 @@ def play():
         
             
         pygame.display.update()
-        current_time = pygame.time.get_ticks()
-
-        if enemy_collision:  # Check if collision with enemy has occurred
-            player.image = explosion_frames[current_frame]
-            player.image = pygame.transform.scale(player.image, (300, 300))
-            player.rect.bottom = SCREEN_HEIGHT - 60
-            explosion_active = True  # Set the explosion flag to activate the animation
-            frame_start_time = pygame.time.get_ticks()  # Record the start time of the current frame
-            freeze_screen = True
-
-        current_time = pygame.time.get_ticks()
-        elapsed_time = current_time - frame_start_time
-
-        if explosion_active:
-            if elapsed_time >= frame_duration:  # Check if the current frame duration has passed
-                current_frame += 1  # Move to the next frame
-                if current_frame >= len(explosion_frames):  # Check if all frames have been displayed
-                   
-                    #pygame.time.delay(500)
-                    
-                    if elapsed_time >= explosion_duration:  # Check if the entire explosion duration has passed
-                        explosion_active = False  # Deactivate the explosion animation
-                        current_frame = 0  # Reset the frame index
-                        pygame.time.delay(500)  # Delay after the explosion animation
-                        # ... (reset the game state as needed)
-                        
-                        # Reset the player image
-                        player.image = pygame.image.load("img/Player/spaceship_black.png")
-                        player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
-                        player.rect.centerx = SCREEN_WIDTH/2
-                        player.rect.bottom = SCREEN_HEIGHT - 10
-                        # ... (reset the game state as needed)
-                    else:
-                        current_frame = len(explosion_frames) - 1  # Show the last frame continuously
-                    player.image = pygame.image.load("img/Player/spaceship_black.png")
-                    player.image = pygame.transform.scale(player.image, (int(player.image.get_width() * 0.2), int(player.image.get_height() * 0.2)))
-                    player.rect.bottom = SCREEN_HEIGHT - 10
-                    explosion_active = False
-                    frame_start_time = pygame.time.get_ticks()  # Record the start time of the next frame
-                else:
-                    player.image = explosion_frames[current_frame]  # Update the player image with the next frame
-                    player.image = pygame.transform.scale(player.image, (300, 300))
-                    frame_start_time = pygame.time.get_ticks()  # Record the start time of the next frame
-                    
         
-                
+
+       
+        
+        if Enemy.SCORE > best_score:
+                best_score = Enemy.SCORE
+                with open('best_score.txt', 'w') as file:
+                    file.write(str(best_score))            
     game_over_flag = False
     collision_sound_played = False
     death_menu()
     
+
+#TODO: Make level 2
+#def play2():
+
+
+
 def options():
     while True:
         SCREEN.blit(endAndBeginBackground, (0, 0))
@@ -261,6 +271,7 @@ def options():
 
 
 def death_menu():
+    
     while True:
         SCREEN.blit(endAndBeginBackground, (0, 0))
 
@@ -285,6 +296,11 @@ def death_menu():
                     
         if not button_hovered:
             SCREEN.blit(mouse_cursor_default, MENU_MOUSE_POS)
+
+
+        
+
+
         for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if RETRY_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -325,6 +341,13 @@ def main_menu():
             if button.rect.collidepoint(MENU_MOUSE_POS):
                     screen.blit(mouse_crusor_hover, MENU_MOUSE_POS)
                     button_hovered = True
+
+
+        best_score_text = font_average.render(f"Best Score: {best_score}", True, WHITE)
+        screen.blit(best_score_text, (10, 10))
+
+
+
         if not button_hovered:
             SCREEN.blit(mouse_cursor_default, MENU_MOUSE_POS)
         for event in pygame.event.get():

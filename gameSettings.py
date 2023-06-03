@@ -1,7 +1,7 @@
 from imports import *
 #from explosion import Explosion
 from enemy import Enemy
-FPS = 140
+FPS = 60
 clock = pygame.time.Clock()
 #font
 def get_font(size): # Returns Press-Start-2P in the desired size
@@ -48,7 +48,7 @@ all_sprites.add(player)
 #explosion = Explosion(Enemy.rect.centerx, enemy.rect.centery)
 #all_explosions.add(explosion)
 
-for i in range(9):  
+for i in range(7):  
     spawn_new_enemy(all_enemies, all_sprites)
 
 
@@ -60,7 +60,7 @@ def reset_game():
     all_bullets.empty()
     player = Player(all_bullets, all_sprites)
     all_sprites.add(player)
-    for i in range(9):
+    for i in range(7):
         spawn_new_enemy(all_enemies, all_sprites)
 
 def change_volume(value):
