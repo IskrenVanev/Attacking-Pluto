@@ -1,6 +1,7 @@
 import pygame
 import sys
 from enemy import Enemy
+#from enemyLvl2 import Enemy2
 import random, time
 from os import path
 
