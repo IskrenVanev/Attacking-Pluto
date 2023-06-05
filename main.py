@@ -7,11 +7,13 @@ from enemyLvl2 import Enemy2
 pygame.init()
 pygame.mixer.init()
 mixer.music.load('sounds/Background_song.mp3')
-mixer.music.set_volume(0.2)
+mixer.music.set_volume(0.0)
 mixer.music.play(-1)
 FPS = 140
 clock = pygame.time.Clock()
 explosion_sound_channel = pygame.mixer.Channel(1)
+lvlUpSound = pygame.mixer.Channel(2)
+lvlUpSound.set_volume(0.2)
 explosion_sound_channel.set_volume(0.2)
 font = pygame.font.SysFont("Verdana", 100)
 font_average = pygame.font.SysFont("Verdana", 50)
@@ -36,7 +38,7 @@ explosion_frames = [
 
 ]
 def spawn_new_enemy2(all_enemies, all_sprites):
-    e = Enemy2(all_bullets, all_sprites , player)
+    e = Enemy2(alien_bullet_group, all_sprites)
     all_enemies.add(e)
     all_sprites.add(e)
 
@@ -200,6 +202,7 @@ def play():
         all_enemies.empty()
         all_bullets.empty()
         pygame.display.update()
+        lvlUpSound.play(pygame.mixer.Sound("sounds/LVLUPSOUND.mp3"))
         pygame.time.wait(2000)
         game_over_flag = False
         collision_sound_played = False
@@ -221,6 +224,8 @@ def play2():
     lvl2wp = pygame.image.load("img\Backgrounds\Lvl2WP.jpg")
     global best_score
     global background_y
+    firstLoop= False
+    firstLoopCnt = 0
     global collision_sound_played
     global explosion_sound_played
     game_over_flag = False
@@ -237,14 +242,16 @@ def play2():
     for i in range(4):  
         spawn_new_enemy2(all_enemies, all_sprites)
     while running:
-        clock.tick(FPS)
         
+        clock.tick(FPS)
+        firstLoopCnt+=1
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
         screen.fill((0, 0, 0))
 
         if not game_over_flag:
+            #might need to update alien bullets!
             
             all_sprites.update()
  # Enemy collision
@@ -267,6 +274,7 @@ def play2():
                 all_sprites.empty()
                 all_enemies.empty()
                 all_bullets.empty()
+                alien_bullet_group.empty()
                 all_sprites.add(player)
                 player.rect.bottom = SCREEN_HEIGHT - 10
                 for i in range(4):
@@ -291,7 +299,43 @@ def play2():
                 elif any(image_path in enemy_images for image_path in Enemy2.enemy_alien_spaceship_ver2):
                     Enemy.SCORE += 2  # Score for shooting enemy_eye_images
                
+
+
+        bullet_collision2 = pygame.sprite.spritecollide(player, alien_bullet_group, False)
+        if bullet_collision2:
+            for bullet in alien_bullet_group:
+                bullet.kill()
+            if hasCollided == False:
+                hasCollided = True
+            for enemy in all_enemies:
+                if hasCollided == True and collisionCounter % 7 != 0:
+                    Enemy.collide_with_player(enemy)
+                    collisionCounter+=1
+                if collisionCounter % 7 == 0:
+                    hasCollided=False
+            player.explode()
+            player.lives -= 1        
+
+            if player.lives >=1:        #empty sprites and spawn them again
+                all_sprites.empty()
+                all_enemies.empty()
+                all_bullets.empty()
+                all_sprites.add(player)
+                player.rect.bottom = SCREEN_HEIGHT - 10
+                for i in range(4):
+                    spawn_new_enemy2(all_enemies, all_sprites)
+            
+            if not collision_sound_played:      #play explosion
+                explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
+                collision_sound_played = True
                 
+            collision_sound_played = False
+            if player.lives <= 0: #ggwp
+                Enemy.SCORE = 0
+                break
+
+
+
         collision_coordinates = []
         for enemy_sprite, bullet_sprites in bullet_collision.items():
             for bullet_sprite in bullet_sprites:
@@ -311,7 +355,9 @@ def play2():
         elif player.lives == 1:
             screen.blit(bg_image3, (0, background_y))
             screen.blit(bg_image3, (0, background_y - background_height))
-        scores = font_average.render(str(Enemy.SCORE), True, WHITE)
+        if Enemy.SCORE>= 20 and firstLoop == 1:
+            Enemy2.SCORE = Enemy.SCORE + Enemy2.SCORE
+        scores = font_average.render(str(Enemy2.SCORE+Enemy.SCORE), True, WHITE)
         
         player.draw_hearts(screen)
         
@@ -336,16 +382,16 @@ def play2():
             
         pygame.display.update()
         
-
+        
        
         
-        if Enemy.SCORE > best_score:
-                best_score = Enemy.SCORE
+        if Enemy.SCORE + Enemy2.SCORE > best_score:
+                best_score = Enemy.SCORE + Enemy2.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))  
-        if Enemy.SCORE >= 40:
+        if Enemy.SCORE  + Enemy2.SCORE>= 40:
             break 
-    if Enemy.SCORE >= 40:
+    if Enemy.SCORE  + Enemy2.SCORE>= 40:
         screen.blit(lvl2wp, (0, 0))
         level_text = font.render("Level 3", True, RED)
         text_rect = level_text.get_rect(center=(screen_width // 2, screen_height // 2))
@@ -353,7 +399,9 @@ def play2():
         all_sprites.empty()
         all_enemies.empty()
         all_bullets.empty()
+        alien_bullet_group.empty()
         pygame.display.update()
+        lvlUpSound.play(pygame.mixer.Sound("sounds/LVLUPSOUND.mp3"))
         pygame.time.wait(2000)
         game_over_flag = False
         collision_sound_played = False
@@ -447,7 +495,7 @@ def play3():
                 bullet_coordinates = (bullet_sprite.rect.x, bullet_sprite.rect.y)
                 collision_coordinates.append(bullet_coordinates)
 
-
+    
         # Scrolling background
         background_y = (background_y + 3) % background_height
         # Draw the background on the screen
@@ -460,7 +508,7 @@ def play3():
         elif player.lives == 1:
             screen.blit(bg_image3, (0, background_y))
             screen.blit(bg_image3, (0, background_y - background_height))
-        scores = font_average.render(str(Enemy.SCORE), True, WHITE)
+        scores = font_average.render(str(Enemy.SCORE + Enemy2.SCORE), True, WHITE)
         
         player.draw_hearts(screen)
         

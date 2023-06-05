@@ -42,9 +42,12 @@ pygame.display.set_caption("Attacking Pluto")
 all_sprites = pygame.sprite.Group()
 all_enemies = pygame.sprite.Group()
 all_bullets = pygame.sprite.Group()
+alien_bullet_group = pygame.sprite.Group()
+#player_group = pygame.sprite.Group()
 #all_explosions = pygame.sprite.Group()
 player = Player(all_bullets, all_sprites)
 all_sprites.add(player)
+#player_group.add(player)
 #explosion = Explosion(Enemy.rect.centerx, enemy.rect.centery)
 #all_explosions.add(explosion)
 
@@ -62,6 +65,7 @@ def reset_game():
     all_sprites.add(player)
     for i in range(7):
         spawn_new_enemy(all_enemies, all_sprites)
+    Enemy.SCORE=0
 
 def change_volume(value):
     pygame.mixer.music.set_volume(value)
