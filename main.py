@@ -3,6 +3,7 @@ from gameSettings import *
 from pygame import mixer
 from pygame.sprite import Sprite
 from enemyLvl2 import Enemy2
+from finalBoss import Boss
 # Settings
 pygame.init()
 pygame.mixer.init()
@@ -41,6 +42,11 @@ def spawn_new_enemy2(all_enemies, all_sprites):
     e = Enemy2(alien_bullet_group, all_sprites)
     all_enemies.add(e)
     all_sprites.add(e)
+def spawn_new_enemy3(all_enemies, all_sprites):
+    e3 = Boss()
+    all_enemies.add(e3)
+    all_sprites.add(e3)
+
 
 #best_score = 0
 try:
@@ -430,8 +436,8 @@ def play3():
     collision_enemies = []
     hasCollided = False
     collisionCounter = 0
-    #for i in range(4):  
-     #   spawn_new_enemy(all_enemies, all_sprites)
+    
+    spawn_new_enemy3(all_enemies, all_sprites)
     while running:
         clock.tick(FPS)
         
@@ -444,38 +450,38 @@ def play3():
             
             all_sprites.update()
  # Enemy collision
-        enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
-        if enemy_collision:
-            if hasCollided == False:
-                hasCollided = True
-            for enemy in all_enemies:
-                if hasCollided == True and collisionCounter % 7 != 0:
-                    Enemy.collide_with_player(enemy)
-                    collisionCounter+=1
-                if collisionCounter % 7 == 0:
-                    hasCollided=False
+        # enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
+        # if enemy_collision:
+        #     if hasCollided == False:
+        #         hasCollided = True
+        #     for enemy in all_enemies:
+        #         if hasCollided == True and collisionCounter % 7 != 0:
+        #             Enemy.collide_with_player(enemy)
+        #             collisionCounter+=1
+        #         if collisionCounter % 7 == 0:
+        #             hasCollided=False
  
-            player.explode()
-            player.lives -= 1
+        #     player.explode()
+        #     player.lives -= 1
           
 
-            if player.lives >=1:        #empty sprites and spawn them again
-                all_sprites.empty()
-                all_enemies.empty()
-                all_bullets.empty()
-                all_sprites.add(player)
-                player.rect.bottom = SCREEN_HEIGHT - 10
-                for i in range(7):
-                    spawn_new_enemy(all_enemies, all_sprites)
+        #     if player.lives >=1:        #empty sprites and spawn them again
+        #         all_sprites.empty()
+        #         all_enemies.empty()
+        #         all_bullets.empty()
+        #         all_sprites.add(player)
+        #         player.rect.bottom = SCREEN_HEIGHT - 10
+        #         for i in range(7):
+        #             spawn_new_enemy(all_enemies, all_sprites)
             
-            if not collision_sound_played:      #play explosion
-                explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
-                collision_sound_played = True
+        #     if not collision_sound_played:      #play explosion
+        #         explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
+        #         collision_sound_played = True
                 
-            collision_sound_played = False
-            if player.lives <= 0: #ggwp
-                Enemy.SCORE = 0
-                break
+        #     collision_sound_played = False
+        #     if player.lives <= 0: #ggwp
+        #         Enemy.SCORE = 0
+        #         break
 # Getting the collision coordinates for bullets
         bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
         if bullet_collision:
@@ -527,7 +533,7 @@ def play3():
             enemy_x = enemy.rect.x
             enemy_y = enemy.rect.y
             show_explosion_animation(enemy_x, enemy_y)
-            spawn_new_enemy(all_enemies, all_sprites)
+            #spawn_new_enemy(all_enemies, all_sprites)
             explosion_sound_channel.play(pygame.mixer.Sound('img/Explosions/ExplosionSound1.wav'))
         
             
