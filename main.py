@@ -42,10 +42,10 @@ def spawn_new_enemy2(all_enemies, all_sprites):
     e = Enemy2(alien_bullet_group, all_sprites)
     all_enemies.add(e)
     all_sprites.add(e)
-def spawn_new_enemy3(all_enemies, all_sprites):
-    e3 = Boss()
-    all_enemies.add(e3)
-    all_sprites.add(e3)
+# def spawn_new_enemy3(all_enemies, all_sprites):
+#     e3 = Boss()
+#     all_enemies.add(e3)
+#     all_sprites.add(e3)
 
 
 #best_score = 0
@@ -419,10 +419,11 @@ def play2():
 
 
 def play3():
-    #print("entered level 2")
     lvl2wp = pygame.image.load("img\Backgrounds\Lvl2WP.jpg")
     global best_score
     global background_y
+    firstLoop= False
+    firstLoopCnt = 0
     global collision_sound_played
     global explosion_sound_played
     game_over_flag = False
@@ -436,8 +437,10 @@ def play3():
     collision_enemies = []
     hasCollided = False
     collisionCounter = 0
-    
-    spawn_new_enemy3(all_enemies, all_sprites)
+    #spawn_new_enemy3(all_enemies, all_sprites)
+    e3 = Boss(boss_bullet_group, all_sprites)
+    all_enemies.add(e3)
+    all_sprites.add(e3)
     while running:
         clock.tick(FPS)
         
@@ -449,6 +452,7 @@ def play3():
         if not game_over_flag:
             
             all_sprites.update()
+            #e3.shoot_bullet()
  # Enemy collision
         # enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
         # if enemy_collision:
@@ -482,19 +486,22 @@ def play3():
         #     if player.lives <= 0: #ggwp
         #         Enemy.SCORE = 0
         #         break
-# Getting the collision coordinates for bullets
-        bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, True, True)
+        # Getting the collision coordinates for bullets
+        
+
+
+
+        bullet_collision = pygame.sprite.groupcollide(all_enemies, all_bullets, False, True)
         if bullet_collision:
             for enemy_sprite, bullet_sprites in bullet_collision.items():
-        # Check the enemy images and assign scores accordingly
-                enemy_images = enemy_sprite.enemy_images     
-                if any(image_path in enemy_images for image_path in Enemy.enemy_bat_images):
-                    Enemy.SCORE += 1  # Score for shooting enemy_bat_images
-                elif any(image_path in enemy_images for image_path in Enemy.enemy_eye_images):
-                    Enemy.SCORE += 2  # Score for shooting enemy_eye_images
-                elif any(image_path in enemy_images for image_path in Enemy.enemy_dragon_images):
-                    Enemy.SCORE += 3  # Score for shooting enemy_dragon_images
-                
+                for bullet_sprite in bullet_sprites:
+                    if isinstance(enemy_sprite, Boss):  # Check if the enemy is the boss
+                        enemy_sprite.life_points -= 1  # Decrement the boss's life points
+                        
+                        if enemy_sprite.life_points <= 0:
+                            enemy_sprite.kill()        
+
+
         collision_coordinates = []
         for enemy_sprite, bullet_sprites in bullet_collision.items():
             for bullet_sprite in bullet_sprites:
@@ -530,20 +537,23 @@ def play3():
         
         for collision in bullet_collision: 
             enemy = collision
-            enemy_x = enemy.rect.x
-            enemy_y = enemy.rect.y
-            show_explosion_animation(enemy_x, enemy_y)
-            #spawn_new_enemy(all_enemies, all_sprites)
-            explosion_sound_channel.play(pygame.mixer.Sound('img/Explosions/ExplosionSound1.wav'))
+            bullet_sprites = bullet_collision[collision]
+            for bullet_sprite in bullet_sprites:
+                bullet_x = bullet_sprite.rect.x
+                bullet_y = bullet_sprite.rect.y
+                show_explosion_animation(bullet_x, bullet_y)
+                explosion_sound_channel.play(pygame.mixer.Sound('img/Explosions/ExplosionSound1.wav'))
         
             
+        e3.draw_life_bar()
+        #boss.update(screen)    
         pygame.display.update()
         
 
        
         
-        if Enemy.SCORE > best_score:
-                best_score = Enemy.SCORE
+        if Enemy.SCORE+Enemy2.SCORE > best_score:
+                best_score = Enemy.SCORE+Enemy2.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))  
         
