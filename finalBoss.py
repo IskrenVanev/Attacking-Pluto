@@ -15,7 +15,7 @@ class Boss(pygame.sprite.Sprite):
             
         ]
    
-    def __init__(self,all_bullets, all_sprites):
+    def __init__(self,all_bullets, all_sprites):    
         super().__init__()
 
         self.enemy_images = self.enemy_boss_images
