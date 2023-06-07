@@ -78,6 +78,7 @@ def play():
     pausetime = 140
     collision_enemies = []
     hasCollided = False
+    won = False
     collisionCounter = 0
     
     while running:
@@ -196,10 +197,10 @@ def play():
                 best_score = Enemy.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))
-        if Enemy.SCORE >= 20:
+        if Enemy.SCORE >= 3:
             break
             
-    if Enemy.SCORE >= 20:
+    if Enemy.SCORE >= 3:
         screen.blit(lvl2wp, (0, 0))
         level_text = font.render("Level 2", True, RED)
         text_rect = level_text.get_rect(center=(screen_width // 2, screen_height // 2))
@@ -215,7 +216,7 @@ def play():
         play2()            
     game_over_flag = False
     collision_sound_played = False
-    death_menu()
+    death_menu(won)
     
 
 
@@ -244,6 +245,7 @@ def play2():
     pausetime = 140
     collision_enemies = []
     hasCollided = False
+    won = False
     collisionCounter = 0
     for i in range(4):  
         spawn_new_enemy2(all_enemies, all_sprites)
@@ -395,9 +397,9 @@ def play2():
                 best_score = Enemy.SCORE + Enemy2.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))  
-        if Enemy.SCORE  + Enemy2.SCORE>= 40:
+        if Enemy.SCORE  + Enemy2.SCORE>= 5:
             break 
-    if Enemy.SCORE  + Enemy2.SCORE>= 40:
+    if Enemy.SCORE  + Enemy2.SCORE>= 5:
         screen.blit(lvl2wp, (0, 0))
         level_text = font.render("Level 3", True, RED)
         text_rect = level_text.get_rect(center=(screen_width // 2, screen_height // 2))
@@ -414,7 +416,7 @@ def play2():
         play3()                     
     game_over_flag = False
     collision_sound_played = False
-    death_menu()
+    death_menu(won)
     
 
 
@@ -437,6 +439,7 @@ def play3():
     collision_enemies = []
     hasCollided = False
     collisionCounter = 0
+    won = False
     #spawn_new_enemy3(all_enemies, all_sprites)
     e3 = Boss(boss_bullet_group, all_sprites)
     all_enemies.add(e3)
@@ -454,38 +457,39 @@ def play3():
             all_sprites.update()
             #e3.shoot_bullet()
  # Enemy collision
-        # enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
-        # if enemy_collision:
-        #     if hasCollided == False:
-        #         hasCollided = True
-        #     for enemy in all_enemies:
-        #         if hasCollided == True and collisionCounter % 7 != 0:
-        #             Enemy.collide_with_player(enemy)
-        #             collisionCounter+=1
-        #         if collisionCounter % 7 == 0:
-        #             hasCollided=False
+        enemy_collision = pygame.sprite.spritecollide(player, all_enemies, False)
+        if enemy_collision:
+            if hasCollided == False:
+                hasCollided = True
+            for enemy in all_enemies:
+                if hasCollided == True and collisionCounter % 7 != 0:
+                    Enemy.collide_with_player(enemy)
+                    collisionCounter+=1
+                if collisionCounter % 7 == 0:
+                    hasCollided=False
  
-        #     player.explode()
-        #     player.lives -= 1
+            player.explode()
+            player.lives -= 1
           
 
-        #     if player.lives >=1:        #empty sprites and spawn them again
-        #         all_sprites.empty()
-        #         all_enemies.empty()
-        #         all_bullets.empty()
-        #         all_sprites.add(player)
-        #         player.rect.bottom = SCREEN_HEIGHT - 10
-        #         for i in range(7):
-        #             spawn_new_enemy(all_enemies, all_sprites)
+            if player.lives >=1:        #empty sprites and spawn them again
+                all_sprites.empty()
+                all_enemies.empty()
+                all_bullets.empty()
+                all_sprites.add(player)
+                player.rect.bottom = SCREEN_HEIGHT - 10
+                e3 = Boss(boss_bullet_group, all_sprites)
+                all_enemies.add(e3)
+                all_sprites.add(e3)
             
-        #     if not collision_sound_played:      #play explosion
-        #         explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
-        #         collision_sound_played = True
+            if not collision_sound_played:      #play explosion
+                explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
+                collision_sound_played = True
                 
-        #     collision_sound_played = False
-        #     if player.lives <= 0: #ggwp
-        #         Enemy.SCORE = 0
-        #         break
+            collision_sound_played = False
+            if player.lives <= 0: #ggwp
+                Enemy.SCORE = 0
+                break
         # Getting the collision coordinates for bullets
         
 
@@ -501,7 +505,41 @@ def play3():
                         if enemy_sprite.life_points <= 0:
                             enemy_sprite.kill()        
 
+        # bullet_collision2 = pygame.sprite.spritecollide(player, boss_bullet_group, False)
+        # if bullet_collision2:
+        #     for bullet in boss_bullet_group:
+        #         bullet.kill()
+        #     if hasCollided == False:
+        #         hasCollided = True
+        #     for enemy in all_enemies:
+        #         if hasCollided == True and collisionCounter % 7 != 0:
+        #             Enemy.collide_with_player(enemy)
+        #             collisionCounter+=1
+        #         if collisionCounter % 7 == 0:
+        #             hasCollided=False
+        #     player.explode()
+        #     player.lives -= 1        
 
+        #     if player.lives >=1:        #empty sprites and spawn them again
+        #         all_sprites.empty()
+        #         all_enemies.empty()
+        #         #boss_bullet_group.empty()
+        #         all_bullets.empty()
+        #         all_sprites.add(player)
+                
+        #         player.rect.bottom = SCREEN_HEIGHT - 10
+        #         e3 = Boss(boss_bullet_group, all_sprites)
+        #         all_enemies.add(e3)
+        #         all_sprites.add(e3)
+            
+        #     if not collision_sound_played:      #play explosion
+        #         explosion_sound_channel.play(pygame.mixer.Sound('sounds/ExplosionGGWP.wav'))
+        #         collision_sound_played = True
+                
+        #     collision_sound_played = False
+        #     if player.lives <= 0: #ggwp
+        #         Enemy.SCORE = 0
+        #         break
         collision_coordinates = []
         for enemy_sprite, bullet_sprites in bullet_collision.items():
             for bullet_sprite in bullet_sprites:
@@ -546,9 +584,14 @@ def play3():
         
             
         e3.draw_life_bar()
+        #e3.shoot_laser()
         #boss.update(screen)    
         pygame.display.update()
-        
+        if e3.life_points<=0:
+            won = True
+            Enemy2.SCORE = 0
+            Enemy.SCORE = 0
+            break
 
        
         
@@ -559,7 +602,7 @@ def play3():
         
     game_over_flag = False
     collision_sound_played = False
-    death_menu()
+    death_menu(won)
 
 
 
@@ -651,13 +694,17 @@ def options():
         pygame.display.update()
 
 
-def death_menu():
+def death_menu(won):
     
     while True:
         SCREEN.blit(endAndBeginBackground, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
-        DEATH_TEXT = get_font(100).render("YOU DIED!", True, "#b68f40")
+        if won:
+            DEATH_TEXT = get_font(100).render("YOU WON!", True, "#b68f40")
+        else:
+            DEATH_TEXT = get_font(100).render("YOU DIED!", True, "#b68f40")
+        
         DEATH_RECT = DEATH_TEXT.get_rect(center=(960, 150))
         MAINMENU_BUTTON = buttons.Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(960, 400), 
                             text_input="MENU", font=get_font(75), base_color="#d7fcd4", hovering_color="White")

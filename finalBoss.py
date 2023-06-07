@@ -3,6 +3,7 @@ import sys
 import random
 import time
 from finalBossBullet import Boss_Bullet
+from finalBossLaser import Boss_Laser
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 #SCREEN = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
@@ -27,7 +28,7 @@ class Boss(pygame.sprite.Sprite):
         self.image_index = 0  # Current image index for animation
         self.change_image_timer = 0  # Timer to control image change
         self.last_bullet_shot = pygame.time.get_ticks()  # Initialize last bullet shot time
-
+        self.last_laser_shot = pygame.time.get_ticks()
         self.life_points = 20  
 
         self.all_bullets = all_bullets
@@ -35,7 +36,10 @@ class Boss(pygame.sprite.Sprite):
         self.direction = random.choice([-1, 1])  # Randomly choose left (-1) or right (1)
         self.speed = random.randint(1, 5)  # Random speed between 1 and 5
         self.change_direction_chance = 0.01 
+        self.current_time = pygame.time.get_ticks()
+        self.last_update_time = pygame.time.get_ticks()
 
+        
 
 
     def update_movement(self):
@@ -51,9 +55,24 @@ class Boss(pygame.sprite.Sprite):
 
 
 
+    def shoot_laser(self):
+        current_time_laser = pygame.time.get_ticks()
+        if current_time_laser - self.last_laser_shot >= 1000:  # Shoot a bullet every 1 second (adjust as needed)
+            laser = Boss_Laser(self.rect.centerx, self.rect.bottom , self)
+           
+
+            
+           
+
+            self.all_bullets.add(laser)
+            
+
+            self.last_laser_shot = current_time_laser
+
+
     def shoot_bullet(self):
-        current_time = pygame.time.get_ticks()
-        if current_time - self.last_bullet_shot >= 1000:  # Shoot a bullet every 1 second (adjust as needed)
+        current_time_bullet = pygame.time.get_ticks()
+        if current_time_bullet - self.last_bullet_shot >= 1000:  # Shoot a bullet every 1 second (adjust as needed)
             bullet1 = Boss_Bullet(self.rect.centerx, self.rect.bottom)
             bullet2 = Boss_Bullet(self.rect.centerx - 100, self.rect.bottom)  # Adjust bullet positions as needed
             bullet3 = Boss_Bullet(self.rect.centerx + 100, self.rect.bottom)  # Adjust bullet positions as needed
@@ -65,10 +84,9 @@ class Boss(pygame.sprite.Sprite):
             self.all_bullets.add(bullet1, bullet2, bullet3)
             self.all_sprites.add(bullet1, bullet2, bullet3)
 
-            self.last_bullet_shot = current_time
-
-
-
+            self.last_bullet_shot = current_time_bullet
+    
+    
     def draw_life_bar(self):
         screen = pygame.display.get_surface()
         # Calculate the width of the life bar based on the remaining life points
@@ -84,10 +102,24 @@ class Boss(pygame.sprite.Sprite):
 
 
     def update(self):
+        
+        
+
+        
+
+       
+        
+    
         self.update_movement()
+
         
         self.shoot_bullet()
+       
+        self.shoot_laser()
+
         
+
+
         # Animation
         self.change_image_timer += 1
         if self.change_image_timer >= 30:  # Change image every 10 frames (adjust as needed)
@@ -95,6 +127,8 @@ class Boss(pygame.sprite.Sprite):
             self.image = pygame.image.load(self.enemy_images[self.image_index])
             self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * 3), int(self.image.get_height() * 3)))  # Adjust scale factor here
             self.change_image_timer = 0
+
         if self.life_points <= 0:
             self.kill()
+
         self.draw_life_bar()
