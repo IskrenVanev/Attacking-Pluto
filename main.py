@@ -8,7 +8,7 @@ from finalBoss import Boss
 pygame.init()
 pygame.mixer.init()
 mixer.music.load('sounds/Background_song.mp3')
-mixer.music.set_volume(0.0)
+mixer.music.set_volume(0.2)
 mixer.music.play(-1)
 FPS = 140
 clock = pygame.time.Clock()
@@ -197,10 +197,10 @@ def play():
                 best_score = Enemy.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))
-        if Enemy.SCORE >= 3:
+        if Enemy.SCORE >= 20:
             break
             
-    if Enemy.SCORE >= 3:
+    if Enemy.SCORE >= 20:
         screen.blit(lvl2wp, (0, 0))
         level_text = font.render("Level 2", True, RED)
         text_rect = level_text.get_rect(center=(screen_width // 2, screen_height // 2))
@@ -397,9 +397,9 @@ def play2():
                 best_score = Enemy.SCORE + Enemy2.SCORE
                 with open('best_score.txt', 'w') as file:
                     file.write(str(best_score))  
-        if Enemy.SCORE  + Enemy2.SCORE>= 5:
+        if Enemy.SCORE  + Enemy2.SCORE>= 40:
             break 
-    if Enemy.SCORE  + Enemy2.SCORE>= 5:
+    if Enemy.SCORE  + Enemy2.SCORE>= 40:
         screen.blit(lvl2wp, (0, 0))
         level_text = font.render("Level 3", True, RED)
         text_rect = level_text.get_rect(center=(screen_width // 2, screen_height // 2))
@@ -501,6 +501,7 @@ def play3():
                 for bullet_sprite in bullet_sprites:
                     if isinstance(enemy_sprite, Boss):  # Check if the enemy is the boss
                         enemy_sprite.life_points -= 1  # Decrement the boss's life points
+                        Enemy.SCORE+=1
                         
                         if enemy_sprite.life_points <= 0:
                             enemy_sprite.kill()        
